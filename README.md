@@ -1,8 +1,6 @@
-Great work on your gym subscription-based CMS! A well-written `README.md` helps others understand, install, and use your project. Here's a **step-by-step guide** for writing a professional `README.md` tailored to your Flask app that uses XAMPP (MySQL) as the database:
 
----
 
-## 📄 Sample `README.md` Template
+## `README.md` Template
 
 ````markdown
 # 💪 Gym Subscription Management System
