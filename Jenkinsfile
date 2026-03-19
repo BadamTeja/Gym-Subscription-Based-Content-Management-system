@@ -9,6 +9,9 @@ pipeline {
         DOCKER_IMAGE = 'badamteja/gym-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         DOCKER_CREDS = 'docker-creds'
+
+        CONTAINER_NAME = 'gym-app'
+        NETWORK = 'gym-net'
     }
 
     stages {
@@ -25,25 +28,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies (Validation)') {
-            steps {
-                sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install -r requirements.txt
-                '''
-            }
-        }
-
-        stage('Code Check') {
-            steps {
-                sh '''
-                echo "Checking Python syntax..."
-                python3 -m py_compile app.py
-                '''
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -53,26 +37,54 @@ pipeline {
             }
         }
 
-        stage('Docker Login & Push') {
+        stage('Login & Push Image') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKER_CREDS}",
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
                 )]) {
                     sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    echo $PASS | docker login -u $USER --password-stdin
                     docker push $DOCKER_IMAGE:$DOCKER_TAG
                     docker push $DOCKER_IMAGE:latest
                     '''
                 }
             }
         }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                echo "Stopping old container..."
+                docker rm -f $CONTAINER_NAME || true
+
+                echo "Pull latest image..."
+                docker pull $DOCKER_IMAGE:latest
+
+                echo "Running new container..."
+                docker run -d \
+                --name $CONTAINER_NAME \
+                --network $NETWORK \
+                -p 5001:5000 \
+                $DOCKER_IMAGE:latest
+                '''
+            }
+        }
+
+        stage('Cleanup Old Images') {
+            steps {
+                sh '''
+                echo "Cleaning unused Docker images..."
+                docker image prune -f
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Image pushed successfully!"
+            echo "✅ Application deployed successfully!"
         }
         failure {
             echo "❌ Pipeline failed!"
