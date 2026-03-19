@@ -16,7 +16,7 @@ COPY . .
 # Expose Flask port
 EXPOSE 5000
 
-# Environment variables (optional)
+# Environment variables (optionals)
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
