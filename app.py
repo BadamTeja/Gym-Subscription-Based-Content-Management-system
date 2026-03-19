@@ -5,6 +5,10 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from datetime import datetime, timedelta
 import io
 
+@app.route('/')
+def home():
+    return redirect(url_for('login'))
+
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
