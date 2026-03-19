@@ -1,20 +1,24 @@
-# Use official Node image
-FROM node:18
+FROM python:3.10
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install system dependencies (optional but useful)
+RUN apt-get update && apt-get install -y gcc default-libmysqlclient-dev
 
-# Install dependencies
-RUN npm install
+# Copy requirements (create this file if not present)
+COPY requirements.txt .
 
-# Copy full project
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy project files
 COPY . .
 
-# Expose port
-EXPOSE 3000
+# Expose Flask port
+EXPOSE 5000
 
-# Start app
-CMD ["npm", "start"]
+# Environment variables (optional)
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+# Run application
+CMD ["python", "app.py"]
