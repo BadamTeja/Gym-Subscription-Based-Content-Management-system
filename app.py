@@ -15,10 +15,10 @@ login_manager.init_app(app)
 # Database Connection
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
+        host="mysql-db",   # ✅ CHANGED
         user="root",
-        password="",
-        database="subscription_db"
+        password="root",   # ✅ CHANGED
+        database="gymdb"   # ✅ CHANGED
     )
 
 # User Model
@@ -590,4 +590,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)   # ✅ CHANGED
